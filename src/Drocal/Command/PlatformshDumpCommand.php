@@ -8,15 +8,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class PlatformDumpCommand extends Command {
+class PlatformshDumpCommand extends Command {
    protected function configure()
     {
       $this
           ->setName('platform.sh:dump')
           ->setAliases(['pd'])
-          ->addOption('platform-environment', 'e', InputOption::VALUE_REQUIRED, 'Platform.sh environment ID')
-          ->addOption('platform-vervosity', 'p', InputOption::VALUE_NONE, 'Passthrou verbosity level to platform-cli')
-          ->setDescription('Dumps remote database without cache data.')
+          ->addOption('environment', 'e', InputOption::VALUE_REQUIRED, 'Platform.sh environment')
+          ->addOption('passthrough', 'p', InputOption::VALUE_NONE, 'Passthrou verbosity level to platform-cli')
+          ->addOption('gzip', null, InputOption::VALUE_NONE, 'Gzip format')
+          ->setDescription('Dumps remote database without cache data to stdout in gzip format.')
       ;
     }
 
@@ -25,7 +26,7 @@ class PlatformDumpCommand extends Command {
         $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
 
         $verbosity = '';
-        if ($input->getOption('platform-vervosity')) {
+        if ($input->getOption('passthrough')) {
           if ($output->isQuiet()) {
               $verbosity = '-q';
           }
@@ -43,9 +44,14 @@ class PlatformDumpCommand extends Command {
           }
         }
 
-        $environment = $input->getOption('platform-environment');
+        $environment = $input->getOption('environment');
         if ($environment) {
           $environment = '-e ' . $environment;
+        }
+
+        $gzip = '';
+        if ($input->getOption('gzip')) {
+          $gzip = '--gzip';
         }
 
         $cmd = "platform $verbosity $environment drush 'sqlq \"SHOW TABLES\"'";
@@ -69,7 +75,7 @@ class PlatformDumpCommand extends Command {
         $tables = preg_split("/\n/", $cmdOutput);
         $structure_tables = preg_grep('/^cache.*|watchdog|accesslog|sessions/', $tables);
 
-        $cmd = "platform $verbosity $environment db:dump --gzip -o --schema-only";
+        $cmd = "platform $verbosity $environment db:dump $gzip -o --schema-only";
         foreach ($structure_tables as $t) {
           $cmd .= ' --table=' . $t;
         }
@@ -84,7 +90,7 @@ class PlatformDumpCommand extends Command {
             echo $buffer;
         });
 
-        $cmd = "platform $verbosity $environment db:dump --gzip -o";
+        $cmd = "platform $verbosity $environment db:dump $gzip -o";
         foreach ($structure_tables as $t) {
           $cmd .= ' --exclude-table=' . $t;
         }
