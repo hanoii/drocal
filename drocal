@@ -7,11 +7,13 @@ require __DIR__.'/vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use Drocal\Command\D7LocalCommand;
 use Drocal\Command\PlatformshDumpCommand;
+use Drocal\Command\PlatformshSyncCommand;
 
 $application = new Application();
 
 // ... register commands
 $application->add(new D7LocalCommand());
 $application->add(new PlatformshDumpCommand());
+$application->add(new PlatformshSyncCommand());
 
 $application->run();

@@ -54,7 +54,7 @@ class PlatformshDumpCommand extends Command {
           $gzip = '--gzip';
         }
 
-        $cmd = "platform $verbosity $environment drush 'sqlq \"SHOW TABLES\"'";
+        $cmd = "platform $verbosity drush $environment 'sqlq \"SHOW TABLES\"'";
         $errOutput->writeln(
             'Running command: ' . $cmd,
             OutputInterface::VERBOSITY_VERBOSE
@@ -75,7 +75,7 @@ class PlatformshDumpCommand extends Command {
         $tables = preg_split("/\n/", $cmdOutput);
         $structure_tables = preg_grep('/^cache.*|watchdog|accesslog|sessions/', $tables);
 
-        $cmd = "platform $verbosity $environment db:dump $gzip -o --schema-only";
+        $cmd = "platform $verbosity db:dump $environment $gzip -o --schema-only";
         foreach ($structure_tables as $t) {
           $cmd .= ' --table=' . $t;
         }
@@ -90,7 +90,7 @@ class PlatformshDumpCommand extends Command {
             echo $buffer;
         });
 
-        $cmd = "platform $verbosity $environment db:dump $gzip -o";
+        $cmd = "platform $verbosity db:dump $environment $gzip -o";
         foreach ($structure_tables as $t) {
           $cmd .= ' --exclude-table=' . $t;
         }
