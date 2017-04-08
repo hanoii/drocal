@@ -8,12 +8,13 @@ use Symfony\Component\Console\Application;
 use Drocal\Command\D7LocalCommand;
 use Drocal\Command\PlatformshDumpCommand;
 use Drocal\Command\PlatformshSyncCommand;
+use Drocal\Command\PlatformshPullCommand;
 
 $application = new Application();
 
 // ... register commands
 $application->add(new D7LocalCommand());
 $application->add(new PlatformshDumpCommand());
-$application->add(new PlatformshSyncCommand());
+$application->add(new PlatformshPullCommand());
 
 $application->run();
