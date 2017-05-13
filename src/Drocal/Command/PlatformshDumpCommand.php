@@ -14,6 +14,7 @@ class PlatformshDumpCommand extends Command {
       $this
           ->setName('platform.sh:dump')
           ->setAliases(['pd'])
+          ->addOption('app', 'A', InputOption::VALUE_REQUIRED, 'Platform.sh app')
           ->addOption('environment', 'e', InputOption::VALUE_REQUIRED, 'Platform.sh environment')
           ->addOption('passthrough', 'p', InputOption::VALUE_NONE, 'Passthrou verbosity level to platform-cli')
           ->addOption('gzip', null, InputOption::VALUE_NONE, 'Gzip format')
@@ -49,12 +50,17 @@ class PlatformshDumpCommand extends Command {
           $environment = '-e ' . $environment;
         }
 
+        $app = $input->getOption('app');
+        if ($app) {
+          $app = '-A ' . $app;
+        }
+
         $gzip = '';
         if ($input->getOption('gzip')) {
           $gzip = '--gzip';
         }
 
-        $cmd = "platform $verbosity drush $environment 'sqlq \"SHOW TABLES\"'";
+        $cmd = "platform $verbosity drush $app $environment 'sqlq \"SHOW TABLES\"'";
         $errOutput->writeln(
             'Running command: ' . $cmd,
             OutputInterface::VERBOSITY_VERBOSE
@@ -75,7 +81,7 @@ class PlatformshDumpCommand extends Command {
         $tables = preg_split("/\n/", $cmdOutput);
         $structure_tables = preg_grep('/^cache.*|watchdog|accesslog|sessions/', $tables);
 
-        $cmd = "platform $verbosity db:dump $environment $gzip -o --schema-only";
+        $cmd = "platform $verbosity db:dump $app $environment $gzip -o --schema-only";
         foreach ($structure_tables as $t) {
           $cmd .= ' --table=' . $t;
         }
@@ -90,7 +96,7 @@ class PlatformshDumpCommand extends Command {
             echo $buffer;
         });
 
-        $cmd = "platform $verbosity db:dump $environment $gzip -o";
+        $cmd = "platform $verbosity db:dump $app $environment $gzip -o";
         foreach ($structure_tables as $t) {
           $cmd .= ' --exclude-table=' . $t;
         }
